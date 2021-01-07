@@ -1,2 +1,3 @@
-# meta_pho_math
-Meta-analysis on the relationship between phonological skills and math skills
+# Relations among Phonological Processing Skills and Mathematics in Children: A Meta-analysis
+Journal of Educational Psychology
+doi: <under review, to be added>
