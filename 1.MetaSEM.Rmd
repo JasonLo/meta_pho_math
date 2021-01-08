@@ -16,7 +16,7 @@ library(tidyverse)
 library(corrr)
 library(metaSEM)
 mxOption(NULL, 'Number of Threads', parallel::detectCores() - 2)
-df <- csv_to_meta_df("main_data_210108.csv", "correlation_data_210108.csv")
+df <- csv_to_meta_df("main_data_201224.csv", "correlation_data_210108.csv")
 ```
 
 # Two-stage meta SEM
@@ -59,7 +59,7 @@ plot(stage2)
 ```
 
 Result summary:
-- Model fit statistic indicate a good fit, with Chi-square X2(12)=20.017, p=.07, CFI = .996, RMSEA =.006
+- Model fit statistic indicate a good fit, with Chi-square X2(12)=20.018, p=.07, CFI = .996, RMSEA =.006
 - High correlation between pho and cog, r=.902, p<.001 (2e-16)
 - pho --> number_knowledge was significant, coef =.503, p<.05
 - cog --> number_knowledge was not significant, coef =.056, p=.829
