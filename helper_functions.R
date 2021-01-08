@@ -112,8 +112,6 @@ remove_outlier_from_main_csv <- function(main_csv, save_file="dat_no_outlier.rds
     id_outliers <- which(inf_uv$inf$inf == "*")
     
     dat_no_outlier <- dat[-id_outliers, ]
-    dat_no_outlier <- escalc("ZCOR", ri = r, ni = n, data = dat_no_outlier)
-    names(dat_no_outlier)[1] <- 'id'
     saveRDS(dat_no_outlier, save_file)
     return(dat_no_outlier)
     
@@ -173,9 +171,9 @@ aggregate_cor <- function(cor, sel_vars) {
 
 cor_to_long <- function(cor, xs, ys=c('math_fluency', 'math_accuracy')){
     # Helper function for compiling one correlation table to pair-wise correlation
-    # Since we have 2 DVs categories, fluency vs. math_acc and 
-    # basic, cal, vs. word problem. To avoid duplication, I will just get all DVs pair
-    # with math_fluency and accuracy. 
+    # Since we have coded DV two times (fluency vs. math_acc) and 
+    # (basic, cal, vs. word problem). To avoid duplication, I will get all correlation pairs
+    # with math_fluency and math_accuracy only. 
     
     long_cor <- cor %>%
         as_cordf() %>% 
@@ -263,7 +261,6 @@ extract_table_state_continous_mod  <- function(df) {
 
 
 prep_input <- function(df, vars){
-    ####
     parsed_cor <- lapply(df$correlations, aggregate_cor, sel_vars=vars)
     non_empty_idx <- lapply(parsed_cor, length) > 0
     this_cor <- parsed_cor[non_empty_idx]
@@ -272,6 +269,7 @@ prep_input <- function(df, vars){
 }
 
 run_model <- function(df, dv, ivs, verbose=F, method='two_stage'){
+    # A convenient function to run exploratory model
     
     # Prep Data
     observed_variables <- c(dv, ivs)
