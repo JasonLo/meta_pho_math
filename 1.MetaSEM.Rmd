@@ -1,0 +1,325 @@
+---
+title: "Source code for: Relations among Phonological Processing Skills and Mathematics in Children: A Meta-analysis"
+author: "Jason Lo"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+    theme: united
+---
+
+```{r environment, message=FALSE, warning=FALSE}
+source("helper_functions.R")
+library(tidyverse)
+library(corrr)
+library(metaSEM)
+mxOption(NULL, 'Number of Threads', parallel::detectCores() - 2)
+df <- csv_to_meta_df("main_data_210108.csv", "correlation_data_210108.csv")
+```
+
+# Two-stage meta SEM
+
+- Due to large amount of missing data in the raw correlation matrix, we opted to use two-stage meta-analytic structural equation modeling for the analysis. In the first stage, we use a multivariate approach to combine correlation matrices across all studies. In the second stage, we fit a structural equation model with the pooled correlation (See Cheung & Chan, 2005; Cheung & Hafdahl, 2016 for further details).
+
+*References:*
+Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. Psychological Methods, 10(1), 40–64. https://doi.org/10.1037/1082-989X.10.1.40
+
+Cheung, M. W. L., & Hafdahl, A. R. (2016). Special issue on meta-analytic structural equation modeling: introduction from the guest editors. Research Synthesis Methods, 7(2), 112–120. https://doi.org/10.1002/jrsm.1212
+
+## Two latent models {.tabset}
+- Phonological skill (pho): a latent variable that is measured by pa, ran, and pm
+- Cognitive skill (cog): a latent variable that is measured by nviq, vocab, and ef
+
+### Number knowledge
+```{r echo=TRUE}
+observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'number_knowledge')
+
+# Since not all variable will be used from the raw data, we have to call prep_input
+# to create a trimmed data set
+data <- prep_input(df, observed_variables)
+
+lavaan_spec <- 'pho =~ pa + ran + pm
+                cog =~ nviq + ef + vocab
+                cog ~~ pho
+                number_knowledge ~ cog + pho'
+
+plot(lavaan_spec)
+RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+
+stage1 <-tssem1(data$cor, data$n, method="REM") %>%
+      rerun(autofixtau2 = TRUE)
+
+stage2 <- tssem2(stage1, RAM=RAM_spec, intervals.type="z") %>% 
+  rerun()
+
+summary(stage2)
+plot(stage2)
+```
+
+Result summary:
+- Model fit statistic indicate a good fit, with Chi-square X2(12)=20.017, p=.07, CFI = .996, RMSEA =.006
+- High correlation between pho and cog, r=.902, p<.001 (2e-16)
+- pho --> number_knowledge was significant, coef =.503, p<.05
+- cog --> number_knowledge was not significant, coef =.056, p=.829
+
+
+### Calculation
+```{r echo=TRUE}
+observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'calculation')
+data <- prep_input(df, observed_variables)
+lavaan_spec <- 'pho =~ pa + ran + pm
+                cog =~ nviq + ef + vocab
+                cog ~~ pho
+                calculation ~ cog + pho'
+
+plot(lavaan_spec)
+RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+
+stage1<-tssem1(data$cor, data$n, method="REM") %>%
+      rerun(autofixtau2 = TRUE)
+
+stage2 <- tssem2(stage1, RAM=RAM_spec, intervals.type="z") %>% 
+  rerun()
+
+summary(stage2)
+plot(stage2)
+```
+Model fit statistic indicate a good fit, with Chi-square X2(12)=24.14, p=.02, CFI = .994, RMSEA =.008
+High correlation between pho and cog, r=.90, p<.001
+pho --> calculation was not significant, coef =.349, p=.129
+cog --> calculation was not significant, coef =.275, p=.242
+
+
+### Word problem
+```{r echo=TRUE}
+observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'word_problem')
+data <- prep_input(df, observed_variables)
+lavaan_spec <- 'pho =~ pa + ran + pm
+                cog =~ nviq + ef + vocab
+                cog ~~ pho
+                word_problem ~ cog + pho'
+
+plot(lavaan_spec)
+RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+
+stage1<-tssem1(data$cor, data$n, method="REM") %>%
+      rerun(autofixtau2 = TRUE)
+
+stage2 <- tssem2(stage1, RAM=RAM_spec, intervals.type="z") %>% 
+  rerun()
+
+summary(stage2)
+plot(stage2)
+```
+Model fit statistic indicate a good fit, with Chi-square X2(12)=12.89, p=.377, CFI = .9995, RMSEA =.0022
+High correlation between pho and cog, r=.90, p<.001
+pho --> word problem was not significant, coef=-0.417, p=.414
+cog --> word problem was significant, coef=1.197, p=.019
+
+
+### Math accuracy
+```{r echo=TRUE}
+observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'math_accuracy')
+data <- prep_input(df, observed_variables)
+lavaan_spec <- 'pho =~ pa + ran + pm
+                cog =~ nviq + ef + vocab
+                cog ~~ pho
+                math_accuracy ~ cog + pho'
+
+plot(lavaan_spec)
+RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+
+stage1 <- tssem1(data$cor, data$n, method="REM") %>%
+      rerun(autofixtau2 = TRUE)
+
+stage2 <- tssem2(stage1, RAM=RAM_spec, intervals.type="z") %>% 
+  rerun()
+
+summary(stage2)
+plot(stage2)
+```
+Model fit statistic indicate a good fit, with Chi-square X2(12)=31.42, p=.002, CFI = .992, RMSEA =.010
+High correlation between pho and cog, r=.90, p<.001
+pho --> math acc was not significant, coef=.193, p=.407
+cog --> math acc was not significant, coef=.455, p=.057
+
+### Math fluency
+```{r echo=TRUE}
+observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'math_fluency')
+data <- prep_input(df, observed_variables)
+lavaan_spec <- 'pho =~ pa + ran + pm
+                cog =~ nviq + ef + vocab
+                cog ~~ pho
+                math_fluency ~ cog + pho'
+
+plot(lavaan_spec)
+RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+
+stage1<-tssem1(data$cor, data$n, method="REM") %>%
+      rerun(autofixtau2 = TRUE)
+
+stage2 <- tssem2(stage1, RAM=RAM_spec, intervals.type="z") %>% 
+  rerun()
+
+summary(stage2)
+plot(stage2)
+```
+Model fit statistic indicate a good fit, with Chi-square X2(12)=40.56, p<.001, CFI = .985, RMSEA =.012
+High correlation between pho and cog, r=.91, p<.001
+pho --> math fluency was not significant, coef=.537, p=.055
+cog --> math fluency was not significant, coef=-.070, p=.809
+
+## Three IVs models {.tabset}
+- Phonological skill (pho): a latent variable that is measured by pa, ran, and pm
+- Cognitive skill (cog): a latent variable that is measured by nviq and ef
+- Vocabulary knowledge (vocab): a observed variable that is measured by vocab 
+- *Due to small number of observation in vocab and cog, the SE is very high for any coefficient related to these factors*
+
+### Number knowledge
+```{r echo=TRUE}
+observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'number_knowledge')
+
+# Since not all variable will be used from the raw data, we have to call prep_input
+# to create a trimmed data set
+data <- prep_input(df, observed_variables)
+
+lavaan_spec <- 'pho =~ pa + ran + pm
+                cog =~ nviq + ef
+                cog ~~ pho
+                cog ~~ vocab
+                pho ~~ vocab
+                number_knowledge ~ cog + pho + vocab'
+
+plot(lavaan_spec)
+RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+
+stage1 <-tssem1(data$cor, data$n, method="REM") %>%
+      rerun(autofixtau2 = TRUE)
+
+stage2 <- tssem2(stage1, RAM=RAM_spec, intervals.type="z") %>% 
+  rerun()
+
+summary(stage2)
+plot(stage2)
+```
+
+Result summary:
+- Model fit statistic indicate a good fit, with Chi-square X2(9)=13.54, p=0.1398, CFI = 0.9977, RMSEA = 0.0055
+- pho --> number_knowledge was not significant 
+- cog --> number_knowledge was not significant
+- vocab --> number_knowledge was not significant
+- *Due to small n in vocab, the standard error is quite high*
+
+
+### Calculation
+```{r echo=TRUE}
+observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'calculation')
+data <- prep_input(df, observed_variables)
+lavaan_spec <- 'pho =~ pa + ran + pm
+                cog =~ nviq + ef 
+                cog ~~ pho
+                cog ~~ vocab
+                pho ~~ vocab
+                calculation ~ cog + pho + vocab'
+
+plot(lavaan_spec)
+RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+
+stage1<-tssem1(data$cor, data$n, method="REM") %>%
+      rerun(autofixtau2 = TRUE)
+
+stage2 <- tssem2(stage1, RAM=RAM_spec, intervals.type="z") %>% 
+  rerun()
+
+summary(stage2)
+plot(stage2)
+```
+Model fit statistic indicate a good fit, with Chi-square X2(9)=21.22, p=.012, CFI = 0.9942, RMSEA = 0.0090
+pho --> calculation was not significant
+cog --> calculation was not significant
+vocab --> calculation was not significant
+
+### Word problem
+```{r echo=TRUE}
+observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'word_problem')
+data <- prep_input(df, observed_variables)
+lavaan_spec <- 'pho =~ pa + ran + pm
+                cog =~ nviq + ef
+                cog ~~ pho
+                cog ~~ vocab
+                pho ~~ vocab
+                word_problem ~ cog + pho + vocab'
+
+plot(lavaan_spec)
+RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+
+stage1<-tssem1(data$cor, data$n, method="REM") %>%
+      rerun(autofixtau2 = TRUE)
+
+stage2 <- tssem2(stage1, RAM=RAM_spec, intervals.type="z") %>% 
+  rerun()
+
+summary(stage2)
+plot(stage2)
+```
+Model fit statistic indicate a good fit, with Chi-square X2(9)=10.9110, p=0.2819, CFI = 0.9990, RMSEA = 0.0037
+pho --> word problem was not significant
+cog --> word problem was not significant
+vocab --> word problem was not significant
+
+
+### Math accuracy
+```{r echo=TRUE}
+observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'math_accuracy')
+data <- prep_input(df, observed_variables)
+lavaan_spec <- 'pho =~ pa + ran + pm
+                cog =~ nviq + ef
+                cog ~~ pho
+                cog ~~ vocab
+                pho ~~ vocab
+                math_accuracy ~ cog + pho + vocab'
+
+plot(lavaan_spec)
+RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+
+stage1 <- tssem1(data$cor, data$n, method="REM") %>%
+      rerun(autofixtau2 = TRUE)
+
+stage2 <- tssem2(stage1, RAM=RAM_spec, intervals.type="z") %>% 
+  rerun()
+
+summary(stage2)
+plot(stage2)
+```
+- cannot fit model properly
+
+### Math fluency
+```{r echo=TRUE}
+observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'math_fluency')
+data <- prep_input(df, observed_variables)
+lavaan_spec <- 'pho =~ pa + ran + pm
+                cog =~ nviq + ef
+                cog ~~ pho
+                cog ~~ vocab
+                pho ~~ vocab
+                math_fluency ~ cog + pho + vocab'
+
+plot(lavaan_spec)
+RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+
+stage1<-tssem1(data$cor, data$n, method="REM") %>%
+      rerun(autofixtau2 = TRUE)
+
+stage2 <- tssem2(stage1, RAM=RAM_spec, intervals.type="z") %>% 
+  rerun()
+
+summary(stage2)
+plot(stage2)
+```
+Model fit statistic indicate a good fit, with Chi-square X2(9)=33.5944, p<.001, CFI = 0.9872, RMSEA = 0.0127
+pho --> math fluency was not significant
+cog --> math fluency was not significant
+vocab --> math fluency was not significant
+
