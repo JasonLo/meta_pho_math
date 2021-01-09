@@ -16,7 +16,12 @@ library(tidyverse)
 library(corrr)
 library(metaSEM)
 mxOption(NULL, 'Number of Threads', parallel::detectCores() - 2)
-df <- csv_to_meta_df("main_data_201224.csv", "correlation_data_210108.csv")
+
+# Parse from source
+# df <- csv_to_meta_df("main_data_201224.csv", "correlation_data_210108.csv")
+
+# Load from disk
+df <- readRDS("df.rds")
 ```
 
 # Two-stage meta SEM
