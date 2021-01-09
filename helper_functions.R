@@ -242,7 +242,7 @@ extract_table_stat_categorical_mod <- function(df) {
     
 }
 
-extract_table_state_continous_mod  <- function(df) {
+extract_table_stat_continous_mod  <- function(df) {
     # Assume the continuous factor is age
     modAge <- rma.mv(yi,
                      vi,
