@@ -1,0 +1,244 @@
+---
+title: "Source code for: Relations among Phonological Processing Skills and Mathematics in Children: A Meta-analysis"
+author: "Jason Lo"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+    theme: united
+---
+
+```{r environment, message=FALSE, warning=FALSE}
+source("helper_functions.R")
+
+library(multcomp)
+library(metafor)
+library(tidyverse)
+
+dat <- read.csv('main_data_201224.csv')
+dat <- escalc("ZCOR", ri = r, ni = n, data = dat, slab = study)
+dat_no_outlier <- readRDS("dat_no_outlier.rds")
+df <- readRDS("df.rds")
+```
+
+
+# Egger's test for publication bias
+Reference for Egger test using rma.mv(): https://dylancraven.github.io/MetaAnalysis_Course/
+- Basically, just add indicator in mod is equivalent to Egger's test
+- Indicator can be: vi, standard error: sqrt(vi)... see regtest() for details see https://stats.stackexchange.com/questions/155693/metafor-package-bias-and-sensitivity-diagnostics
+```{r}
+egger_mv <- rma.mv(yi, vi, mod = I(sqrt(vi)), random = ~ 1 | study, data = dat, slab = study)
+summary(egger_mv)
+```
+To test for publication bias, sampling standard error was used as the indicator in the Egger's regression test, result indicates the publication bias is not significant, z=-1.0591, p=0.2895
+
+
+# Detailed output dump
+## Table 1
+```{r}
+# Subsetting data in each categorization
+dat_math11 <- dat_no_outlier %>%  filter(math1 == 1)  # Basic number knowledge
+dat_math12 <- dat_no_outlier %>%  filter(math1 == 2)  # Calculation
+dat_math13 <- dat_no_outlier %>%  filter(math1 == 3)  # Word problem
+dat_math21 <- dat_no_outlier %>%  filter(math2 == 1)  # Accuracy
+dat_math22 <- dat_no_outlier %>%  filter(math2 == 2)  # Fluency
+dat_pp1 <- dat_no_outlier %>% filter(PP == 1)  # PA
+dat_pp2 <- dat_no_outlier %>% filter(PP == 2)  # RAN
+dat_dran <- get_long_cor(df, 'dran')
+dat_ndran <- get_long_cor(df, 'ndran')
+dat_pp3 <- dat_no_outlier %>% filter(PP == 3)  # PM
+dat_dpm <- get_long_cor(df, 'dpm')  
+dat_ndpm <- get_long_cor(df, 'ndpm')
+dat_sample1 <- dat_no_outlier %>%  filter(sample == 1)  # TD
+dat_sample2 <- dat_no_outlier %>%  filter(sample == 2)  # Atypical
+dat_sample4 <- dat_no_outlier %>% filter(sample == 4)  # other diseases
+dat_grade1 <- dat_no_outlier %>%  filter(grade == 1)  # K1-K3
+dat_grade2 <- dat_no_outlier %>%  filter(grade == 2)  # G1-G3
+dat_grade3 <- dat_no_outlier %>%  filter(grade == 3)  # G4-G6
+dat_design1 <- dat_no_outlier %>%  filter(design == 1)  # Concurrent
+dat_design2 <- dat_no_outlier %>%  filter(design == 2)  # Longitudinal
+
+
+df_list_table1 <- list(dat_no_outlier, dat_math11, dat_math12, dat_math13,
+                       dat_math21, dat_math22, dat_pp1, dat_pp2, dat_dran, 
+                       dat_ndran, dat_pp3, dat_dpm, dat_ndpm, 
+                       dat_sample1, dat_sample2, dat_sample4,
+                       dat_grade1, dat_grade2,
+                       dat_grade3, dat_design1, dat_design2)
+
+results1 <- lapply(df_list_table1, extract_table1_stat) %>% bind_rows()
+
+name_list_table1 <- c("Overall",
+                      "Math1: Basic number knowledge",
+                      "Math1:Calculation", 
+                      "Math1:Word problem",
+                      "Math2: Accuracy", 
+                      "Math2: Fluency",
+                      "PP: PA", 
+                      "PP: RAN", 
+                      "PP (New): DRAN",
+                      "PP (New): NDRAN",
+                      "PP: PM",
+                      "PP (New): DPM",
+                      "PP (New): NDPM",
+                      "Sample: TD", "Sample: Atypical", "Sample: Other",
+                      "Grade: K1-K3", "Grade: G1-G3", "Grade: G4-G6",
+                      "Design: Concurrent", "Design: Longitudinal")
+
+results1$name <- name_list_table1
+results1 <- results1 %>% dplyr::select(name, k, r, lb, ub, s2)
+write.csv(results1, "tables/table1_210108.csv")
+```
+
+## Table 2
+```{r}
+# Create pairwise dataframes
+datpair_math1_12 <- rbind(dat_math11, dat_math12) %>% mutate(mod_var = math1)
+datpair_math1_23 <- rbind(dat_math12, dat_math13) %>% mutate(mod_var = math1)
+datpair_math1_13 <- rbind(dat_math11, dat_math13) %>% mutate(mod_var = math1)
+datpair_math2 <- rbind(dat_math21, dat_math22) %>% mutate(mod_var = math2)
+datpair_pp_12 <- rbind(dat_pp1, dat_pp2) %>% mutate(mod_var = PP)
+datpair_pp_23 <- rbind(dat_pp2, dat_pp3) %>% mutate(mod_var = PP)
+datpair_pp_13 <- rbind(dat_pp1, dat_pp3) %>% mutate(mod_var = PP)
+datpair_ran <- rbind(dat_dran, dat_ndran) %>% mutate(mod_var = x)
+datpair_pm <- rbind(dat_dpm, dat_ndpm) %>% mutate(mod_var = x)
+datpair_sample_12 <- rbind(dat_sample1, dat_sample2) %>% mutate(mod_var = sample)
+datpair_sample_14 <- rbind(dat_sample1, dat_sample4) %>% mutate(mod_var = sample)
+datpair_sample_24 <- rbind(dat_sample2, dat_sample4) %>% mutate(mod_var = sample)
+
+datpair_grade_12 <- rbind(dat_grade1, dat_grade2) %>% mutate(mod_var = grade)
+datpair_grade_23 <- rbind(dat_grade2, dat_grade3) %>% mutate(mod_var = grade)
+datpair_grade_13 <- rbind(dat_grade1, dat_grade3) %>% mutate(mod_var = grade)
+datpair_design <- rbind(dat_design1, dat_design2) %>% mutate(mod_var = design)
+
+# Bundle into a list (only for categorical moderator)
+df_list_table2 <- list(datpair_math1_12, datpair_math1_23, datpair_math1_13,
+                       datpair_math2, datpair_pp_12, datpair_pp_23, datpair_pp_13,
+                       datpair_ran, datpair_pm,
+                       datpair_sample_12, datpair_sample_14, datpair_sample_24, 
+                       datpair_grade_12, datpair_grade_23, datpair_grade_13,
+                       datpair_design)
+
+
+# Run stats
+results2 <- lapply(df_list_table2, extract_table_stat_categorical_mod) %>% bind_rows()
+results2 <- rbind(results2, extract_table_stat_continous_mod(dat_no_outlier))
+
+
+# Give each row of analysis a name
+name_list_table2 <- c("Math1: Basic vs. Calculation", 
+                      "Math1: Calculation vs. Word",
+                      "Math1: Basic vs. Word",
+                      "Math2: Accuracy vs. Fluency",
+                      "PP: PA vs. RAN",
+                      "PP: RAN vs. PM",
+                      "PP: PA vs. PM",
+                      "RAN: Digit vs. Non-digit",
+                      "PM: Digit vs. Non-digit",
+                      "Sample: TD vs. Atypical",
+                      "Sample: TD vs. Other",
+                      "Sample: Atypical vs. Other",
+                      "Grade: K1-K3 vs. G1-G3",
+                      "Grade: G1-G3 vs. G4-G6",
+                      "Grade: K1-K3 vs. G4-G6",
+                      "Design: Concurrent vs. Longitudinal",
+                      "Age") # Assume the last
+
+
+results2$name <- name_list_table2
+
+# Adjusting p-value for entire table using false discovery rate
+results2$adj_p_fdr <- p.adjust(results2$p, method = "fdr")
+
+results2 <- results2 %>% dplyr::select(name, beta, se, lb, ub, z, p, adj_p_fdr)
+write.csv(results2, "tables/table2_210108.csv")
+
+```
+
+
+## Prep for table 3-5
+```{r}
+df_list_master_table345 <- list(datpair_math1_12, datpair_math1_23, datpair_math1_13,
+                             datpair_math2, 
+                             datpair_sample_12, datpair_sample_14, datpair_sample_24, 
+                             datpair_grade_12, datpair_grade_23, datpair_grade_13,
+                             datpair_design)
+
+name_list_table345 <- c("Math1: Basic vs. Calculation", 
+                 "Math1: Calculation vs. Word",
+                 "Math1: Basic vs. Word",
+                 "Math2: Accuracy vs. Fluency",
+                 "Sample: TD vs. Atypical",
+                 "Sample: TD vs. Other",
+                 "Sample: Atypical vs. Other",
+                 "Grade: K1-K3 vs. G1-G3",
+                 "Grade: G1-G3 vs. G4-G6",
+                 "Grade: K1-K3 vs. G4-G6",
+                 "Design: Concurrent vs. Longitudinal",
+                 "Age")
+
+run_table_345 <- function(pp_filter){
+  filter_function <- function(df){
+    return(df[df$PP==pp_filter,])
+  }
+  
+  # Apply filter
+  df_cat_mod_list <- lapply(df_list_master_table345, filter_function)
+  df_cont_mod_age <- filter_function(dat_no_outlier)
+  
+  # Run stats
+  results <- lapply(df_cat_mod_list, extract_table_stat_categorical_mod) %>% bind_rows()
+  results <- rbind(results, extract_table_stat_continous_mod(df_cont_mod_age))
+  results$name <- name_list_table345
+  
+  # Adjusting p-value for entire table using false discovery rate
+  results$adj_p_fdr <- p.adjust(results$p, method = "fdr")
+  
+  results <- results %>% dplyr::select(name, beta, se, lb, ub, z, p, adj_p_fdr)
+  return(results)
+}
+```
+
+
+## Table 3-5
+```{r}
+
+results3 <- run_table_345(pp_filter = 1)
+write.csv(results3, "tables/table3_210108.csv")
+
+results4 <- run_table_345(pp_filter = 2)
+write.csv(results3, "tables/table4_210108.csv")
+
+results5 <- run_table_345(pp_filter = 3)
+write.csv(results3, "tables/table5_210108.csv")
+
+```
+
+# Formatted output
+## Table 1
+
+```{r}
+results1
+```
+
+## Table 2
+```{r}
+results2
+```
+
+## Table 3
+```{r}
+results3
+```
+
+## Table 4
+```{r}
+results4
+```
+
+## Table 5
+```{r}
+results5
+```
