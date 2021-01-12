@@ -33,7 +33,7 @@ Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling:
 
 Cheung, M. W. L., & Hafdahl, A. R. (2016). Special issue on meta-analytic structural equation modeling: introduction from the guest editors. Research Synthesis Methods, 7(2), 112–120. https://doi.org/10.1002/jrsm.1212
 
-## Two latent models {.tabset}
+## Two latent models
 - Phonological skill (pho): a latent variable that is measured by pa, ran, and pm
 - Cognitive skill (cog): a latent variable that is measured by nviq, vocab, and ef
 
@@ -176,7 +176,7 @@ High correlation between pho and cog, r=.91, p<.001
 pho --> math fluency was not significant, coef=.537, p=.055
 cog --> math fluency was not significant, coef=-.070, p=.809
 
-## Three IVs models {.tabset}
+## Three IVs models
 - Phonological skill (pho): a latent variable that is measured by pa, ran, and pm
 - Cognitive skill (cog): a latent variable that is measured by nviq and ef
 - Vocabulary knowledge (vocab): a observed variable that is measured by vocab 
@@ -327,4 +327,34 @@ Model fit statistic indicate a good fit, with Chi-square X2(9)=33.5944, p<.001, 
 pho --> math fluency was not significant
 cog --> math fluency was not significant
 vocab --> math fluency was not significant
+
+## All latent model (Failed)
+```{r}
+observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'number_knowledge', 'calculation', 'word_problem')
+data <- prep_input(df, observed_variables)
+lavaan_spec <- 'pho =~ pa + ran + pm
+                cog =~ nviq + ef
+                math =~ number_knowledge + calculation + word_problem
+                cog ~~ pho
+                cog ~~ vocab
+                pho ~~ vocab
+                math ~ cog + pho + vocab'
+
+plot(lavaan_spec)
+RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+
+stage1<-tssem1(data$cor, data$n, method="REM", RE.type="Diag") 
+
+
+summary(stage1)
+coef(stage1, select="random")
+
+
+stage2 <- tssem2(stage1, RAM=RAM_spec) 
+summary(stage2)
+plot(stage2)
+
+
+
+```
 
