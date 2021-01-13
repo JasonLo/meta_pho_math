@@ -51,14 +51,15 @@ h_mean <- length(all_data$n) / sum(1/all_data$n)
 
 print(paste("Mean sample size:", n_mean, "Harmonic mean:", h_mean))
 
-# Run stage 1 on overall sample (instead of reporting separate stage 1 in each model for simplicity)
-overall_stage1 <-tssem1(all_data$cor, all_data$n, method="REM")
 
 ```
 
 ## Construct table 1
 ```{r}
 t1 <- matrix(nrow=11, ncol=11)
+
+# Run stage 1 on overall sample (instead of reporting separate stage 1 in each model for simplicity)
+overall_stage1 <-tssem1(all_data$cor, all_data$n, method="REM")
 overall_summary <- summary(overall_stage1)
 t1[lower.tri(t1)] <- coef(overall_stage1, select="fixed")
 t1[upper.tri(t1)] <- overall_summary$I2.values[,"Estimate"]
