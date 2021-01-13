@@ -35,6 +35,7 @@ summary(egger_mv)
 To test for publication bias, sampling standard error was used as the indicator in the Egger's regression test, result indicates the publication bias is not significant, z=-1.0591, p=0.2895
 
 
+
 # Detailed output dump
 ## Table 1
 ```{r}
@@ -88,8 +89,8 @@ name_list_table1 <- c("Overall",
                       "Design: Concurrent", "Design: Longitudinal")
 
 results1$name <- name_list_table1
-results1 <- results1 %>% dplyr::select(name, k, r, lb, ub, s2)
-write.csv(results1, "tables/table1_210108.csv")
+results1 <- results1 %>% dplyr::select(name, n_study, k, r, lb, ub, s2)
+write.csv(results1, "tables/table1_210113.csv")
 ```
 
 ## Table 2
@@ -152,8 +153,8 @@ results2$name <- name_list_table2
 # Adjusting p-value for entire table using false discovery rate
 results2$adj_p_fdr <- p.adjust(results2$p, method = "fdr")
 
-results2 <- results2 %>% dplyr::select(name, beta, se, lb, ub, z, p, adj_p_fdr)
-write.csv(results2, "tables/table2_210108.csv")
+results2 <- results2 %>% dplyr::select(name, n_study, k, beta, se, lb, ub, z, p, adj_p_fdr)
+write.csv(results2, "tables/table2_210113.csv")
 
 ```
 
@@ -196,7 +197,7 @@ run_table_345 <- function(pp_filter){
   # Adjusting p-value for entire table using false discovery rate
   results$adj_p_fdr <- p.adjust(results$p, method = "fdr")
   
-  results <- results %>% dplyr::select(name, beta, se, lb, ub, z, p, adj_p_fdr)
+  results <- results %>% dplyr::select(name, n_study, k, beta, se, lb, ub, z, p, adj_p_fdr)
   return(results)
 }
 ```
@@ -206,13 +207,13 @@ run_table_345 <- function(pp_filter){
 ```{r}
 
 results3 <- run_table_345(pp_filter = 1)
-write.csv(results3, "tables/table3_210108.csv")
+write.csv(results3, "tables/table3_210113.csv")
 
 results4 <- run_table_345(pp_filter = 2)
-write.csv(results3, "tables/table4_210108.csv")
+write.csv(results3, "tables/table4_210113.csv")
 
 results5 <- run_table_345(pp_filter = 3)
-write.csv(results3, "tables/table5_210108.csv")
+write.csv(results3, "tables/table5_210113.csv")
 
 ```
 
