@@ -208,6 +208,8 @@ get_long_cor <- function(df, x){
 extract_table1_stat <- function(df) {
     # This function can return a row in table 1
     # k, r, 95%CI lower-bound, upper-bound, and sigma^2 (multivariate version of Tau^2)
+    
+    n_study <- length(unique(df$study))
     res <- rma.mv (yi, vi, random = ~ 1 | study, data = df)
     print(summary(res))
     rpred <- predict(res, transf = transf.ztor)
@@ -216,13 +218,14 @@ extract_table1_stat <- function(df) {
     lb <- round(rpred$ci.lb, 3)
     ub <- round(rpred$ci.ub, 3)
     s2 <- round(res$sigma2, 3)
-    return(data.frame(k, r, lb, ub, s2))
+    return(data.frame(n_study, k, r, lb, ub, s2))
 }
 
 
 # Function for pairwise statistics
 extract_table_stat_categorical_mod <- function(df) {
     # Assume the moderator is mod_var
+    n_study <- length(unique(df$study))
     modCat <-
         rma.mv (
             yi,
@@ -233,30 +236,33 @@ extract_table_stat_categorical_mod <- function(df) {
         )
     print(summary(modCat))
     beta <- round(modCat$beta[2], 2)
+    k <- modCat$k
     se <- round(modCat$se[2], 2)
     z <- round(modCat$zval[2], 2)
     p <- modCat$pval[2]
     lb <- round(modCat$ci.lb[2], 2)
     ub <- round(modCat$ci.ub[2], 2)
-    return(data.frame(beta, se, z, p, lb, ub))
+    return(data.frame(n_study, k, beta, se, z, p, lb, ub))
     
 }
 
 extract_table_stat_continous_mod  <- function(df) {
     # Assume the continuous factor is age
+    n_study <- length(unique(df$study))
     modAge <- rma.mv(yi,
                      vi,
                      random = ~ 1 | study,
                      mods = age,
                      data = df)
     print(summary(modAge))
+    k <- modAge$k
     beta <- round(modAge$beta[2], 2)
     se <- round(modAge$se[2], 2)
     z <- round(modAge$zval[2], 2)
     p <- modAge$pval[2]
     lb <- round(modAge$ci.lb[2], 2)
     ub <- round(modAge$ci.ub[2], 2)
-    return(data.frame(beta, se, z, p, lb, ub))
+    return(data.frame(n_study, k, beta, se, z, p, lb, ub))
 }
 
 
