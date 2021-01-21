@@ -11,7 +11,7 @@
 
 <meta name="author" content="Jason Lo" />
 
-<meta name="date" content="2021-01-13" />
+<meta name="date" content="2021-01-21" />
 
 <title>Source code for: Relations among Phonological Processing Skills and Mathematics in Children: A Meta-analysis</title>
 
@@ -2799,21 +2799,28 @@ div.tocify {
 
 <h1 class="title toc-ignore">Source code for: Relations among Phonological Processing Skills and Mathematics in Children: A Meta-analysis</h1>
 <h4 class="author">Jason Lo</h4>
-<h4 class="date">2021-01-13</h4>
+<h4 class="date">2021-01-21</h4>
 
 </div>
 
 
+<div id="important-notes" class="section level1">
+<h1>Important notes</h1>
+<ul>
+<li>In the paper, we have a last minute change in table numbering, table 1-5 in the script is table 2-6 in the paper.</li>
+</ul>
 <pre class="r"><code>source(&quot;helper_functions.R&quot;)
 
 library(multcomp)
 library(metafor)
 library(tidyverse)
 
+
 dat &lt;- read.csv(&#39;main_data_201224.csv&#39;)
 dat &lt;- escalc(&quot;ZCOR&quot;, ri = r, ni = n, data = dat, slab = study)
 dat_no_outlier &lt;- readRDS(&quot;dat_no_outlier.rds&quot;)
 df &lt;- readRDS(&quot;df.rds&quot;)</code></pre>
+</div>
 <div id="eggers-test-for-publication-bias" class="section level1">
 <h1>Egger’s test for publication bias</h1>
 <p>Reference for Egger test using rma.mv(): <a href="https://dylancraven.github.io/MetaAnalysis_Course/" class="uri">https://dylancraven.github.io/MetaAnalysis_Course/</a> - Basically, just add indicator in mod is equivalent to Egger’s test - Indicator can be: vi, standard error: sqrt(vi)… see regtest() for details see <a href="https://stats.stackexchange.com/questions/155693/metafor-package-bias-and-sensitivity-diagnostics" class="uri">https://stats.stackexchange.com/questions/155693/metafor-package-bias-and-sensitivity-diagnostics</a></p>
