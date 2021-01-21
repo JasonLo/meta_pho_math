@@ -10,12 +10,16 @@ output:
     theme: united
 ---
 
+# Important notes
+- In the paper, we have a last minute change in table numbering, table 1-5 in the script is table 2-6 in the paper. 
+
 ```{r environment, message=FALSE, warning=FALSE}
 source("helper_functions.R")
 
 library(multcomp)
 library(metafor)
 library(tidyverse)
+
 
 dat <- read.csv('main_data_201224.csv')
 dat <- escalc("ZCOR", ri = r, ni = n, data = dat, slab = study)
