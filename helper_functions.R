@@ -1,6 +1,21 @@
 library(tidyverse)
 library(corrr)
 
+
+my_desc <- function(my_data){
+    # Count how many effective correlations / effect sizes
+    # because the correlation matrix contains diagonals (ones) and has both upper and lower triangle
+    # no. of effect size = (number of total correlation - number of study * number of variable)/2
+    
+    nv <- my_data$cor[[1]] %>% nrow()
+    nstudy <- my_data$cor %>% length()
+    n_cor <- sum(sapply(my_data$cor, function(x){sum(!is.na(x))}))
+    n_es <- 0.5 * (n_cor - nstudy * nv)
+
+    print(paste("Number of study: ", nstudy, " ; Number of effect sizes: ",n_es))
+    
+}
+
 clean_df <- function(cor_df, main_df) {
     # Collect between study information
     between_info_from_cor <- cor_df %>%

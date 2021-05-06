@@ -79,6 +79,7 @@ Cheung, M. W. L., & Hafdahl, A. R. (2016). Special issue on meta-analytic struct
 - Phonological skill (pho): a latent variable that is measured by pa, ran, and pm
 - Cognitive skill (cog): a latent variable that is measured by nviq, vocab, and ef
 
+
 ### Number knowledge
 ```{r echo=TRUE}
 observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'number_knowledge')
@@ -86,6 +87,7 @@ observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'number_knowle
 # Since not all variable will be used from the raw data, we have to call prep_input
 # to create a trimmed data set
 data <- prep_input(df, observed_variables)
+my_desc(data)
 pattern.na(data$cor, show.na=F, type="tssem")
 lavaan_spec <- 'pho =~ pa + ran + pm
                 cog =~ nviq + ef + vocab
@@ -117,6 +119,7 @@ Result summary:
 ```{r echo=TRUE}
 observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'calculation')
 data <- prep_input(df, observed_variables)
+my_desc(data)
 lavaan_spec <- 'pho =~ pa + ran + pm
                 cog =~ nviq + ef + vocab
                 cog ~~ pho
@@ -144,6 +147,7 @@ cog --> calculation was not significant, coef =.275, p=.242
 ```{r echo=TRUE}
 observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'word_problem')
 data <- prep_input(df, observed_variables)
+my_desc(data)
 lavaan_spec <- 'pho =~ pa + ran + pm
                 cog =~ nviq + ef + vocab
                 cog ~~ pho
@@ -171,6 +175,7 @@ cog --> word problem was significant, coef=1.197, p=.019
 ```{r echo=TRUE}
 observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'math_accuracy')
 data <- prep_input(df, observed_variables)
+my_desc(data)
 lavaan_spec <- 'pho =~ pa + ran + pm
                 cog =~ nviq + ef + vocab
                 cog ~~ pho
@@ -197,6 +202,7 @@ cog --> math acc was not significant, coef=.455, p=.057
 ```{r echo=TRUE}
 observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'math_fluency')
 data <- prep_input(df, observed_variables)
+my_desc(data)
 lavaan_spec <- 'pho =~ pa + ran + pm
                 cog =~ nviq + ef + vocab
                 cog ~~ pho
@@ -218,3 +224,31 @@ Model fit statistic indicate a good fit, with Chi-square X2(12)=40.56, p<.001, C
 High correlation between pho and cog, r=.91, p<.001
 pho --> math fluency was not significant, coef=.537, p=.055
 cog --> math fluency was not significant, coef=-.070, p=.809
+
+
+### Combined 4
+Non-convergence, abandon.
+```{r}
+# observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'number_knowledge', 'calculation', 'math_accuracy', 'math_fluency')
+# data <- prep_input(df, observed_variables)
+# lavaan_spec <- 'pho =~ pa + ran + pm
+#                 cog =~ nviq + ef + vocab
+#                 cog ~~ pho
+#                 number_knowledge ~ cog + pho
+#                 calculation ~ cog + pho
+#                 math_accuracy ~ cog + pho
+#                 math_fluency ~ cog + pho'
+# 
+# plot(lavaan_spec)
+# RAM_spec <- lavaan2RAM(lavaan_spec, obs.variables=observed_variables)
+# 
+# stage1<-tssem1(data$cor, data$n, method="REM") %>%
+#       rerun(autofixtau2 = TRUE)
+# 
+# stage2 <- tssem2(stage1, RAM=RAM_spec, intervals.type="z") %>% 
+#   rerun()
+# 
+# summary(stage2)
+# plot(stage2)
+```
+
