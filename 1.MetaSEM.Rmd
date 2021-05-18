@@ -51,7 +51,6 @@ h_mean <- length(all_data$n) / sum(1/all_data$n)
 
 print(paste("Mean sample size:", n_mean, "Harmonic mean:", h_mean))
 
-
 ```
 
 ## Construct table 1
@@ -88,6 +87,7 @@ observed_variables <- c('pa', 'ran', 'pm', 'nviq', 'vocab', 'ef', 'number_knowle
 # to create a trimmed data set
 data <- prep_input(df, observed_variables)
 my_desc(data)
+
 pattern.na(data$cor, show.na=F, type="tssem")
 lavaan_spec <- 'pho =~ pa + ran + pm
                 cog =~ nviq + ef + vocab

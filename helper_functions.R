@@ -6,13 +6,27 @@ my_desc <- function(my_data){
     # Count how many effective correlations / effect sizes
     # because the correlation matrix contains diagonals (ones) and has both upper and lower triangle
     # no. of effect size = (number of total correlation - number of study * number of variable)/2
+    math_sub_skill_name <- last(rownames(my_data$cor[[1]]))
     
     nv <- my_data$cor[[1]] %>% nrow()
     nstudy <- my_data$cor %>% length()
     n_cor <- sum(sapply(my_data$cor, function(x){sum(!is.na(x))}))
+    
+    check_cor_exist <- function(cor_table, x_name, y_name){
+        sum(!is.na(cor_table[x_name, y_name]))
+    }
+    
+    n_pa <- sum(sapply(my_data$cor, check_cor_exist, math_sub_skill_name, 'pa'))
+    n_ran <- sum(sapply(my_data$cor, check_cor_exist, math_sub_skill_name, 'ran'))
+    n_pm <- sum(sapply(my_data$cor, check_cor_exist, math_sub_skill_name, 'pm'))
+    
     n_es <- 0.5 * (n_cor - nstudy * nv)
+    
 
-    print(paste("Number of study: ", nstudy, " ; Number of effect sizes: ",n_es))
+    print(paste("Number of study: ", nstudy, " ; Number of effect sizes: ", n_es,
+                "PA:", n_pa, "RAN:", n_ran, "PM:", n_pm))
+    
+    return(data.frame(nstudy, n_es, n_pa, n_ran, n_pm))
     
 }
 
