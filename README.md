@@ -1,6 +1,7 @@
 # Relations among Phonological Processing Skills and Mathematics in Children: A Meta-analysis
 *Journal of Educational Psychology*, 
-doi: <under review, to be added>
+link: https://psycnet.apa.org/doiLanding?doi=10.1037%2Fedu0000710
+doi: https://doi.org/10.1037/edu0000710
 
 ## Files:
 ### MetaSEM related:
